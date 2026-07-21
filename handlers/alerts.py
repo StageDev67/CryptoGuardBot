@@ -22,16 +22,14 @@ class AlertState(StatesGroup):
 db = Database(Config.DATABASE_PATH)
 coingecko = CoinGeckoAPI(Config.COINGECKO_API_KEY, Config.COINGECKO_BASE_URL)
 
-# Новая функция для создания уведомления из обычной кнопки
 async def start_alert_creation(message: types.Message):
     """Начало создания уведомления из обычной кнопки"""
-    # Получаем список популярных монет
     coins = await coingecko.get_supported_coins()
     coin_symbols = [coin[:10] for coin in coins]
     
     await message.answer(
         "🔔 *Создание уведомления*\n\n"
-        "Выберите монету для установки уведомления",
+        "Выберите монету для установки уведомления:",
         reply_markup=get_coin_list_keyboard(coin_symbols),
         parse_mode="Markdown"
     )
@@ -47,11 +45,12 @@ async def cmd_alerts(message: types.Message, state: FSMContext):
             "📋 У вас нет активных уведомлений\n\n"
             "Чтобы создать уведомление, нажмите кнопку 'Установить уведомление' в главном меню",
             reply_markup=get_back_keyboard(),
-            parse_mode=None  # <-- Добавить parse_mode=None
+            parse_mode=None  # <-- ОБЯЗАТЕЛЬНО!
         )
         return
     
-    alert_text = "📋 *Ваши уведомления*\n\n"
+    # Формируем текст БЕЗ Markdown
+    alert_text = "📋 Ваши уведомления:\n\n"
     for alert in alerts:
         direction_emoji = "⬆️" if alert['direction'] == 'above' else "⬇️"
         status = "✅ Активно" if alert['is_active'] else "⏸️ Неактивно"
@@ -66,7 +65,7 @@ async def cmd_alerts(message: types.Message, state: FSMContext):
     await message.answer(
         alert_text,
         reply_markup=get_back_keyboard(),
-        parse_mode="Markdown"  # Здесь оставляем
+        parse_mode=None  # <-- МЕНЯЕМ НА None!
     )
 
 @router.message(Command("remove_alert"))
@@ -76,7 +75,7 @@ async def cmd_remove_alert(message: types.Message):
     
     if len(args) < 2:
         await message.answer(
-            "❌ Укажите ID уведомления для удаления\n"
+            "❌ Укажите ID уведомления для удаления.\n"
             "Пример: /remove_alert 1",
             reply_markup=get_back_keyboard(),
             parse_mode=None
@@ -89,13 +88,13 @@ async def cmd_remove_alert(message: types.Message):
         
         if db.remove_alert(user_id, alert_id):
             await message.answer(
-                f"✅ Уведомление #{alert_id} успешно удалено",
+                f"✅ Уведомление #{alert_id} успешно удалено.",
                 reply_markup=get_back_keyboard(),
                 parse_mode=None
             )
         else:
             await message.answer(
-                f"❌ Уведомление #{alert_id} не найдено или уже удалено",
+                f"❌ Уведомление #{alert_id} не найдено или уже удалено.",
                 reply_markup=get_back_keyboard(),
                 parse_mode=None
             )
@@ -111,13 +110,12 @@ async def process_set_alert(callback: types.CallbackQuery, state: FSMContext):
     """Начало процесса создания уведомления из инлайн-кнопки"""
     await callback.answer()
     
-    # Получаем список популярных монет
     coins = await coingecko.get_supported_coins()
     coin_symbols = [coin[:10] for coin in coins]
     
     await callback.message.edit_text(
         "🔔 *Создание уведомления*\n\n"
-        "Выберите монету для установки уведомления",
+        "Выберите монету для установки уведомления:",
         reply_markup=get_coin_list_keyboard(coin_symbols),
         parse_mode="Markdown"
     )
@@ -130,7 +128,6 @@ async def process_coin_selection(callback: types.CallbackQuery, state: FSMContex
     coin_symbol = callback.data.replace("coin_", "")
     await callback.answer()
     
-    # Сохраняем выбранную монету
     await state.update_data(coin=coin_symbol)
     
     await callback.message.edit_text(
@@ -175,21 +172,19 @@ async def process_threshold_input(message: types.Message, state: FSMContext):
             )
             return
         
-        # Получаем данные из состояния
         data = await state.get_data()
         coin = data.get('coin')
         direction = data.get('direction')
         user_id = message.from_user.id
         
-        # Сохраняем алерт в базу
         if db.add_alert(user_id, coin, threshold, direction):
             direction_text = "выше" if direction == "above" else "ниже"
             
             await message.answer(
-                f"✅ Уведомление успешно создано\n\n"
+                f"✅ Уведомление успешно создано!\n\n"
                 f"📊 Монета: {coin.upper()}\n"
                 f"📈 Условие: цена {direction_text} ${threshold:,.2f}\n\n"
-                f"Вы получите уведомление, когда цена достигнет этого порога",
+                f"Вы получите уведомление, когда цена достигнет этого порога.",
                 reply_markup=get_back_keyboard(),
                 parse_mode=None
             )
@@ -197,7 +192,7 @@ async def process_threshold_input(message: types.Message, state: FSMContext):
             logger.info(f"Пользователь {user_id} создал алерт для {coin}: {direction} {threshold}")
         else:
             await message.answer(
-                "❌ Не удалось сохранить уведомление. Возможно, такое уведомление уже существует",
+                "❌ Не удалось сохранить уведомление. Возможно, такое уведомление уже существует.",
                 reply_markup=get_back_keyboard(),
                 parse_mode=None
             )
