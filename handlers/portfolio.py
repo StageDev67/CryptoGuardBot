@@ -78,9 +78,22 @@ async def cmd_portfolio(message: types.Message):
         parse_mode="Markdown"  # Включаем Markdown только для этого сообщения
     )
 
+# ===== НОВАЯ КОМАНДА /portfolio_add =====
+@router.message(Command("portfolio_add"))
+async def cmd_portfolio_add(message: types.Message, state: FSMContext):
+    """Обработчик команды /portfolio_add"""
+    await message.answer(
+        "➕ *Добавление монеты в портфель*\n\n"
+        "Введите символ монеты (например: bitcoin, ethereum):",
+        reply_markup=get_back_keyboard(),
+        parse_mode="Markdown"
+    )
+    
+    await state.set_state(PortfolioState.waiting_for_add_coin)
+
 @router.callback_query(lambda c: c.data == "portfolio_add")
 async def process_portfolio_add(callback: types.CallbackQuery, state: FSMContext):
-    """Добавление монеты в портфель"""
+    """Добавление монеты в портфель (из инлайн-кнопки)"""
     await callback.answer()
     
     await callback.message.edit_text(
