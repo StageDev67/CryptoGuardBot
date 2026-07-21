@@ -9,8 +9,8 @@ class Config:
     BOT_TOKEN = os.getenv('BOT_TOKEN')
     COINGECKO_API_KEY = os.getenv('COINGECKO_API_KEY')
     
-    # URL API CoinGecko
-    COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3"
+    # ИСПРАВЛЕНО: используем публичный URL для Demo ключа
+    COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3"  # Не pro-api!
     
     # Настройки базы данных
     DATABASE_PATH = "database/bot.db"
@@ -24,4 +24,4 @@ class Config:
 
 # Проверка наличия необходимых переменных
 if not Config.BOT_TOKEN:
-    raise ValueError("BOT_TOKEN не найден в .env файле")
+    raise ValueError("BOT_TOKEN не найден в .env файле!")

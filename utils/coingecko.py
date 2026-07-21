@@ -5,13 +5,11 @@ from typing import Optional, Dict, Any, List
 logger = logging.getLogger(__name__)
 
 class CoinGeckoAPI:
-    """Клиент для работы с CoinGecko API"""
-    
     def __init__(self, api_key: str, base_url: str):
         self.api_key = api_key
-        self.base_url = base_url
+        self.base_url = base_url  # Теперь https://api.coingecko.com/api/v3
         self.headers = {
-            'x-cg-pro-api-key': api_key,
+            'x-cg-demo-api-key': api_key,  # Для Demo используется x-cg-demo-api-key
             'accept': 'application/json'
         }
     
