@@ -5,11 +5,13 @@ from typing import Optional, Dict, Any, List
 logger = logging.getLogger(__name__)
 
 class CoinGeckoAPI:
+    """Клиент для работы с CoinGecko API"""
+    
     def __init__(self, api_key: str, base_url: str):
         self.api_key = api_key
-        self.base_url = base_url  # Теперь https://api.coingecko.com/api/v3
+        self.base_url = base_url
         self.headers = {
-            'x-cg-demo-api-key': api_key,  # Для Demo используется x-cg-demo-api-key
+            'x-cg-demo-api-key': api_key,
             'accept': 'application/json'
         }
     
@@ -23,6 +25,9 @@ class CoinGeckoAPI:
         Returns:
             Словарь с данными о цене или None в случае ошибки
         """
+        # ПРИВОДИМ К НИЖНЕМУ РЕГИСТРУ
+        coin_id = coin_id.lower()
+        
         try:
             url = f"{self.base_url}/simple/price"
             params = {

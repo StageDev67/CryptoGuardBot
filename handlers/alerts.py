@@ -47,7 +47,7 @@ async def cmd_alerts(message: types.Message, state: FSMContext):
             "📋 У вас нет активных уведомлений\n\n"
             "Чтобы создать уведомление, нажмите кнопку 'Установить уведомление' в главном меню",
             reply_markup=get_back_keyboard(),
-            parse_mode=None
+            parse_mode=None  # <-- Добавить parse_mode=None
         )
         return
     
@@ -66,7 +66,7 @@ async def cmd_alerts(message: types.Message, state: FSMContext):
     await message.answer(
         alert_text,
         reply_markup=get_back_keyboard(),
-        parse_mode="Markdown"
+        parse_mode="Markdown"  # Здесь оставляем
     )
 
 @router.message(Command("remove_alert"))
