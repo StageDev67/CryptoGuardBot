@@ -22,3 +22,8 @@ Telegram бот для отслеживания криптовалют с уве
 - aiogram 3.x
 - CoinGecko API (Demo или Pro)
 - SQLite3
+
+## Контакты
+
+📩 Заказать бота: [@drakula3245](https://t.me/drakula3245)  
+📮 Наша студия: [@stagedevstudio](https://t.me/stagedevstudio)
